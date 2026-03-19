@@ -38,7 +38,7 @@ public class RoomService {
     if (!roomRepository.existsById(id)) {
       throw new RuntimeException("Room not found");
     }
-    roomRepository.deleteById(id);
     kafkaTemplate.send("room-events", String.valueOf(id), new RoomEvent("ROOM_DELETED", id));
+    roomRepository.deleteById(id);
   }
 }
