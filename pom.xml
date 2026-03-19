@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.ynov.coworking</groupId>
+  <artifactId>tp-archi-workspace-root</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>TP archi logicielle — racine workspace</name>
+  <description>
+    Agrégateur Maven à la racine : un seul module (étape 7) pour éviter les doublons d’artefacts
+    dans le reactor Maven. Les étapes 1 à 6 se buildent depuis leur dossier respectif.
+  </description>
+
+  <modules>
+    <module>etape-7</module>
+  </modules>
+</project>
