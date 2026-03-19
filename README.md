@@ -4,7 +4,10 @@ Projet d’architecture microservices (Spring Boot 3.2.x, Spring Cloud 2023.0.x)
 
 ## Contenu
 
-- **`etape-1/`** — projet Maven multi-modules : Config Server, Eureka, API Gateway, services métier (voir [`etape-1/README.md`](etape-1/README.md)).
+- **`etape-1/`** — squelette multi-modules (voir [`etape-1/README.md`](etape-1/README.md)).
+- **`etape-2/`** — réservations + RestTemplate (`etape-2/README.md`).
+- **`etape-3/`** — Kafka (`etape-3/README.md`).
+- **`etape-4/`** — pattern State sur les réservations (`etape-4/README.md`).
 
 ## Démarrage rapide
 
