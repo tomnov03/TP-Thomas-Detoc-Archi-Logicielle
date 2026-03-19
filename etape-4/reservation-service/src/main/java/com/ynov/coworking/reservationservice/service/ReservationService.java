@@ -10,8 +10,10 @@ import com.ynov.coworking.reservationservice.model.ReservationStatus;
 import com.ynov.coworking.reservationservice.repository.ReservationRepository;
 import com.ynov.coworking.reservationservice.state.ReservationState;
 import com.ynov.coworking.reservationservice.state.StateFactory;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -111,9 +113,14 @@ public class ReservationService {
   public void handleRoomDeleted(Long roomId) {
     List<Reservation> list =
         reservationRepository.findByRoomIdAndStatus(roomId, ReservationStatus.CONFIRMED);
+    Set<Long> memberIds = new HashSet<>();
     for (Reservation x : list) {
+      memberIds.add(x.getMemberId());
       x.setStatus(ReservationStatus.CANCELLED);
       reservationRepository.save(x);
+    }
+    for (Long memberId : memberIds) {
+      maybeUnsuspendAfterChange(memberId);
     }
   }
 
