@@ -2,6 +2,7 @@ package com.ynov.coworking.memberservice.kafka;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -35,8 +36,9 @@ public class KafkaConfig {
   }
 
   @Bean
-  public KafkaTemplate<String, Object> kafkaTemplate() {
-    return new KafkaTemplate<>(producerFactory());
+  public KafkaTemplate<String, Object> kafkaTemplate(
+      ProducerFactory<String, Object> producerFactory) {
+    return new KafkaTemplate<>(Objects.requireNonNull(producerFactory, "producerFactory"));
   }
 
   @Bean
@@ -52,10 +54,12 @@ public class KafkaConfig {
 
   @Bean(name = "memberKafkaListenerContainerFactory")
   public ConcurrentKafkaListenerContainerFactory<String, MemberEvent>
-      memberKafkaListenerContainerFactory() {
+      memberKafkaListenerContainerFactory(
+          ConsumerFactory<String, MemberEvent> memberEventConsumerFactory) {
     ConcurrentKafkaListenerContainerFactory<String, MemberEvent> f =
         new ConcurrentKafkaListenerContainerFactory<>();
-    f.setConsumerFactory(memberEventConsumerFactory());
+    f.setConsumerFactory(
+        Objects.requireNonNull(memberEventConsumerFactory, "memberEventConsumerFactory"));
     return f;
   }
 }

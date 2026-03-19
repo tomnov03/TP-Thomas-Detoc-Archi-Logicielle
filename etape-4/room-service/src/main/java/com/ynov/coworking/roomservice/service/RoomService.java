@@ -5,6 +5,7 @@ import com.ynov.coworking.roomservice.dto.RoomUpdateRequest;
 import com.ynov.coworking.roomservice.kafka.RoomEvent;
 import com.ynov.coworking.roomservice.model.Room;
 import com.ynov.coworking.roomservice.repository.RoomRepository;
+import java.util.Objects;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,23 +23,31 @@ public class RoomService {
   }
 
   public RoomResponse getById(Long id) {
-    Room r = roomRepository.findById(id).orElseThrow(() -> new RuntimeException("Room not found"));
+    Long nid = Objects.requireNonNull(id, "id");
+    Room r =
+        roomRepository.findById(nid).orElseThrow(() -> new RuntimeException("Room not found"));
     return new RoomResponse(r.getId(), r.isAvailable());
   }
 
   @Transactional
   public void updateAvailability(Long id, RoomUpdateRequest req) {
-    Room r = roomRepository.findById(id).orElseThrow(() -> new RuntimeException("Room not found"));
+    Long nid = Objects.requireNonNull(id, "id");
+    Room r =
+        roomRepository.findById(nid).orElseThrow(() -> new RuntimeException("Room not found"));
     r.setAvailable(req.isAvailable());
     roomRepository.save(r);
   }
 
   @Transactional
   public void delete(Long id) {
-    if (!roomRepository.existsById(id)) {
+    Long nid = Objects.requireNonNull(id, "id");
+    if (!roomRepository.existsById(nid)) {
       throw new RuntimeException("Room not found");
     }
-    roomRepository.deleteById(id);
-    kafkaTemplate.send("room-events", String.valueOf(id), new RoomEvent("ROOM_DELETED", id));
+    roomRepository.deleteById(nid);
+    kafkaTemplate.send(
+        "room-events",
+        Objects.requireNonNull(nid.toString()),
+        new RoomEvent("ROOM_DELETED", nid));
   }
 }

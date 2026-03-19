@@ -2,10 +2,12 @@ package com.ynov.coworking.reservationservice.kafka;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
@@ -36,8 +38,9 @@ public class KafkaConfig {
   }
 
   @Bean
-  public KafkaTemplate<String, Object> kafkaTemplate() {
-    return new KafkaTemplate<>(producerFactory());
+  public KafkaTemplate<String, Object> kafkaTemplate(
+      ProducerFactory<String, Object> producerFactory) {
+    return new KafkaTemplate<>(Objects.requireNonNull(producerFactory, "producerFactory"));
   }
 
   @Bean
@@ -53,10 +56,13 @@ public class KafkaConfig {
 
   @Bean(name = "reservationRoomListenerContainerFactory")
   public ConcurrentKafkaListenerContainerFactory<String, RoomEvent>
-      reservationRoomListenerContainerFactory() {
+      reservationRoomListenerContainerFactory(
+          @Qualifier("roomEventConsumerFactory")
+              ConsumerFactory<String, RoomEvent> roomEventConsumerFactory) {
     ConcurrentKafkaListenerContainerFactory<String, RoomEvent> f =
         new ConcurrentKafkaListenerContainerFactory<>();
-    f.setConsumerFactory(roomEventConsumerFactory());
+    f.setConsumerFactory(
+        Objects.requireNonNull(roomEventConsumerFactory, "roomEventConsumerFactory"));
     return f;
   }
 
@@ -73,10 +79,13 @@ public class KafkaConfig {
 
   @Bean(name = "reservationMemberListenerContainerFactory")
   public ConcurrentKafkaListenerContainerFactory<String, MemberEvent>
-      reservationMemberListenerContainerFactory() {
+      reservationMemberListenerContainerFactory(
+          @Qualifier("memberEventConsumerFactory")
+              ConsumerFactory<String, MemberEvent> memberEventConsumerFactory) {
     ConcurrentKafkaListenerContainerFactory<String, MemberEvent> f =
         new ConcurrentKafkaListenerContainerFactory<>();
-    f.setConsumerFactory(memberEventConsumerFactory());
+    f.setConsumerFactory(
+        Objects.requireNonNull(memberEventConsumerFactory, "memberEventConsumerFactory"));
     return f;
   }
 }

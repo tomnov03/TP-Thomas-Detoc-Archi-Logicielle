@@ -11,6 +11,7 @@ import com.ynov.coworking.reservationservice.repository.ReservationRepository;
 import com.ynov.coworking.reservationservice.state.ReservationState;
 import com.ynov.coworking.reservationservice.state.StateFactory;
 import java.util.List;
+import java.util.Objects;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,15 +72,17 @@ public class ReservationService {
   }
 
   public void cancelReservation(Long id) {
+    Long nid = Objects.requireNonNull(id, "id");
     Reservation r =
-        reservationRepository.findById(id).orElseThrow(() -> new RuntimeException("Not found"));
+        reservationRepository.findById(nid).orElseThrow(() -> new RuntimeException("Not found"));
     ReservationState state = StateFactory.getState(r.getStatus());
     state.cancel(r, this);
   }
 
   public void completeReservation(Long id) {
+    Long nid = Objects.requireNonNull(id, "id");
     Reservation r =
-        reservationRepository.findById(id).orElseThrow(() -> new RuntimeException("Not found"));
+        reservationRepository.findById(nid).orElseThrow(() -> new RuntimeException("Not found"));
     ReservationState state = StateFactory.getState(r.getStatus());
     state.complete(r, this);
   }
@@ -127,10 +130,11 @@ public class ReservationService {
           restTemplate.getForObject(
               "http://member-service/members/{id}", MemberDto.class, memberId);
       if (m != null && cnt >= m.getMaxConcurrentBookings()) {
+        Long mid = Objects.requireNonNull(memberId, "memberId");
         kafkaTemplate.send(
             "member-events",
-            String.valueOf(memberId),
-            new MemberEvent("MEMBER_SUSPEND", memberId));
+            Objects.requireNonNull(mid.toString()),
+            new MemberEvent("MEMBER_SUSPEND", mid));
       }
     } catch (RuntimeException ignored) {
     }
@@ -144,10 +148,11 @@ public class ReservationService {
           restTemplate.getForObject(
               "http://member-service/members/{id}", MemberDto.class, memberId);
       if (m != null && cnt < m.getMaxConcurrentBookings()) {
+        Long mid = Objects.requireNonNull(memberId, "memberId");
         kafkaTemplate.send(
             "member-events",
-            String.valueOf(memberId),
-            new MemberEvent("MEMBER_UNSUSPEND", memberId));
+            Objects.requireNonNull(mid.toString()),
+            new MemberEvent("MEMBER_UNSUSPEND", mid));
       }
     } catch (RuntimeException ignored) {
     }

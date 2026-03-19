@@ -10,15 +10,10 @@ public final class StateFactory {
     if (status == null) {
       throw new IllegalStateException("Unknown");
     }
-    switch (status) {
-      case CONFIRMED:
-        return new ConfirmedState();
-      case CANCELLED:
-        return new CancelledState();
-      case COMPLETED:
-        return new CompletedState();
-      default:
-        throw new IllegalStateException("Unknown");
-    }
+    return switch (status) {
+      case CONFIRMED -> new ConfirmedState();
+      case CANCELLED -> new CancelledState();
+      case COMPLETED -> new CompletedState();
+    };
   }
 }

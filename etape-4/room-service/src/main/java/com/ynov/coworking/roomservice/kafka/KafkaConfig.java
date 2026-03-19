@@ -2,6 +2,7 @@ package com.ynov.coworking.roomservice.kafka;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.context.annotation.Bean;
@@ -27,7 +28,8 @@ public class KafkaConfig {
   }
 
   @Bean
-  public KafkaTemplate<String, Object> kafkaTemplate() {
-    return new KafkaTemplate<>(producerFactory());
+  public KafkaTemplate<String, Object> kafkaTemplate(
+      ProducerFactory<String, Object> producerFactory) {
+    return new KafkaTemplate<>(Objects.requireNonNull(producerFactory, "producerFactory"));
   }
 }

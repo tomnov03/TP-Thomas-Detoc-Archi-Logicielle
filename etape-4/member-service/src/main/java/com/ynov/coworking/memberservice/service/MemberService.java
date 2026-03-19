@@ -4,6 +4,7 @@ import com.ynov.coworking.memberservice.dto.MemberResponse;
 import com.ynov.coworking.memberservice.kafka.MemberEvent;
 import com.ynov.coworking.memberservice.model.Member;
 import com.ynov.coworking.memberservice.repository.MemberRepository;
+import java.util.Objects;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,21 +22,24 @@ public class MemberService {
   }
 
   public MemberResponse getById(Long id) {
+    Long nid = Objects.requireNonNull(id, "id");
     Member m =
-        memberRepository.findById(id).orElseThrow(() -> new RuntimeException("Member not found"));
+        memberRepository.findById(nid).orElseThrow(() -> new RuntimeException("Member not found"));
     return new MemberResponse(m.getId(), m.isSuspended(), m.getMaxConcurrentBookings());
   }
 
   public boolean canBook(Long id) {
+    Long nid = Objects.requireNonNull(id, "id");
     Member m =
-        memberRepository.findById(id).orElseThrow(() -> new RuntimeException("Member not found"));
+        memberRepository.findById(nid).orElseThrow(() -> new RuntimeException("Member not found"));
     return !m.isSuspended();
   }
 
   @Transactional
   public void suspend(Long memberId) {
+    Long mid = Objects.requireNonNull(memberId, "memberId");
     memberRepository
-        .findById(memberId)
+        .findById(mid)
         .ifPresent(
             m -> {
               m.setSuspended(true);
@@ -45,8 +49,9 @@ public class MemberService {
 
   @Transactional
   public void unsuspend(Long memberId) {
+    Long mid = Objects.requireNonNull(memberId, "memberId");
     memberRepository
-        .findById(memberId)
+        .findById(mid)
         .ifPresent(
             m -> {
               m.setSuspended(false);
@@ -56,10 +61,12 @@ public class MemberService {
 
   @Transactional
   public void delete(Long id) {
-    if (!memberRepository.existsById(id)) {
+    Long nid = Objects.requireNonNull(id, "id");
+    if (!memberRepository.existsById(nid)) {
       throw new RuntimeException("Member not found");
     }
-    kafkaTemplate.send("member-events", String.valueOf(id), new MemberEvent("MEMBER_DELETED", id));
-    memberRepository.deleteById(id);
+    kafkaTemplate.send(
+        "member-events", Objects.requireNonNull(nid.toString()), new MemberEvent("MEMBER_DELETED", nid));
+    memberRepository.deleteById(nid);
   }
 }
