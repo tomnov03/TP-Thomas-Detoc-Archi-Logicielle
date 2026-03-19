@@ -62,6 +62,7 @@
         <executions>
           <execution>
             <id>enforce-java</id>
+            <phase>validate</phase>
             <goals>
               <goal>enforce</goal>
             </goals>
